@@ -1,0 +1,1 @@
+<x-ComButton class="uppercase w-max">{{ $slot }} <x-svgs name="plus" /></x-ComButton>
