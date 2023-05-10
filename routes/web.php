@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,12 +19,23 @@ use Inertia\Inertia;
 |
 */
 
-Route::inertia('/','Welcome')->name('home');
+Route::middleware(['guest'])->name('admin.')->prefix('admin')->group(function () {
+    Route::inertia('/', 'Login')->name('login')->middleware('guest');
+    Route::post('/login', [LoginController::class, 'login']);
+});
 
-Route::get('/about', function () {
-    return Inertia::render('About');
-})->name('about');
+Route::middleware(['auth'])->group(function () {
+    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+});
 
-Route::get('/contact', function () {
-    return Inertia::render('Contact')->name('contact');
+Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    Route::resource('/roles', RoleController::class);
+    Route::post('/roles/{role}/permissions', [RoleController::class, 'givePermission'])->name('roles.permissions');
+    Route::delete('/roles/{role}/permissions/{permission}', [RoleController::class, 'revokePermission'])->name('roles.permissions.revoke');
+
+    Route::resource('/permissions', PermissionController::class);
+    Route::post('/permissions/{permission}/roles', [PermissionController::class, 'assignRole'])->name('permissions.roles');
+    Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])->name('permissions.roles.remove');
 });
