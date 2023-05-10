@@ -19,8 +19,8 @@ use Inertia\Inertia;
 |
 */
 
-Route::middleware(['guest'])->name('admin.')->prefix('admin')->group(function () {
-    Route::inertia('/', 'Login')->name('login')->middleware('guest');
+Route::middleware(['guest'])->group(function () {
+    Route::inertia('/', 'Login')->name('login');
     Route::post('/login', [LoginController::class, 'login']);
 });
 
